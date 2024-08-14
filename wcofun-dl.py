@@ -27,7 +27,7 @@ def downloadFile(name, videoFile):
         'Sec-Fetch-Dest': 'video',
         'Sec-Fetch-Mode': 'no-cors',
         'Sec-Fetch-Site': 'cross-site',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+        'User-Agent': user_agent,  # get this from the findMedia function
         'sec-ch-ua': '"Chromium";v="127", "Not)A;Brand";v="99"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"Linux"',
@@ -68,8 +68,11 @@ def findMedia(url, counter):
     # get name of movie
     fireFoxOptions = webdriver.FirefoxOptions()
     fireFoxOptions.add_argument("--headless")
-    fireFoxOptions.set_preference("general.useragent.override", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36")
     driver = webdriver.Firefox(options=fireFoxOptions)
+
+    global user_agent  # get the user_gent to use in headers
+    user_agent = driver.execute_script("return navigator.userAgent;")
+
     driver.get(url)
     page = driver.page_source
     getpage = BeautifulSoup(page, 'html.parser')
@@ -78,7 +81,7 @@ def findMedia(url, counter):
     clean_title = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '', title)
     name = clean_title.lower().replace(" ", "_") + '.mp4'.strip()
     print('Video name: ' + name, flush=True)
-            
+
     # search for mp4 in iframe document. The iframe id will change. Find and get the id using BeautifulSoup
     iframe = getpage.find('iframe')
     if iframe:
@@ -107,14 +110,13 @@ def findMedia(url, counter):
         print("No iframe found on this page.", flush=True)
         driver.quit()
         return
-        
+
     driver.quit()
 
 def findPage(url, counter):
    # get name of movie
     fireFoxOptions = webdriver.FirefoxOptions()
     fireFoxOptions.add_argument("--headless")
-    fireFoxOptions.set_preference("general.useragent.override", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36")
     driver = webdriver.Firefox(options=fireFoxOptions)
     driver.get(url)
     page = driver.page_source
@@ -143,7 +145,7 @@ def findPage(url, counter):
 
 def getArguments():
     global url, batchFile, yesDownload
-    
+
     parser  =   argparse.ArgumentParser(description='Downloads media from wcofun.net')
 
     parser.add_argument('-d',
@@ -153,7 +155,7 @@ def getArguments():
                         help='Downloads videos',
                         required=False
                         )
-    
+
     parser.add_argument('--batch',
                         action='store_true',
                         dest='batchFile',
@@ -161,7 +163,7 @@ def getArguments():
                         help='Run using a batch of urls.',
                         required=False
                         )
-    
+
     parser.add_argument('URL',
                         type=str,
                         help='<Required> url link'
