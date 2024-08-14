@@ -31,10 +31,10 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the script to the container
-COPY wcofun-dl.py wcofun-dl.py
+COPY ./wcofun-dl.py /opt/wcofun-dl.py
 
 # Specify the command to run the script
-ENTRYPOINT ["python", "wcofun-dl.py"]
+ENTRYPOINT ["python", "/opt/wcofun-dl.py"]
 
 # Specify the volume
 VOLUME ["/downloads"]
